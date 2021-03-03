@@ -1,6 +1,5 @@
 package work.tool.entity;
 
-
 import lombok.Data;
 import work.tool.annotation.Column;
 import work.tool.annotation.Id;

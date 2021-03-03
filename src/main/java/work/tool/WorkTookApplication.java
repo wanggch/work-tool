@@ -5,13 +5,16 @@ import cn.hutool.extra.template.Template;
 import cn.hutool.extra.template.TemplateConfig;
 import cn.hutool.extra.template.TemplateEngine;
 import cn.hutool.extra.template.TemplateUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import work.tool.annotation.Column;
 import work.tool.annotation.Id;
 import work.tool.annotation.Table;
 import work.tool.sql.ColumnInfo;
+import work.tool.sql.TableInfo;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -70,10 +73,9 @@ public class WorkTookApplication {
             }
             TemplateEngine engine = TemplateUtil.createEngine(new TemplateConfig("templates", TemplateConfig.ResourceMode.CLASSPATH));
             Template template = engine.getTemplate("sql.ftl");
-            Dict data = Dict.create().set("schema", table.schema()).set("table", table.name()).set("columnList", columnInfos);
-            if (Objects.nonNull(primaryKey)) {
-                data.set("primaryKey", primaryKey);
-            }
+            TableInfo tableInfo = new TableInfo(table.name(), table.desc(), table.schema(), primaryKey, columnInfos);
+            Map<String, Object> data = new ObjectMapper().convertValue(tableInfo, Map.class);
+            LOGGER.info("## render data ##\n{}", new Gson().toJson(data));
             String result = template.render(data);
             LOGGER.info("## render result ##\n{}", result);
         } catch (ClassNotFoundException e) {
